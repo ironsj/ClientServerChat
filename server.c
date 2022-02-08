@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <unistd.h>
+#include <string.h>
+#define MAX 1000
 
 void error(char *msg)
 {
@@ -17,7 +19,7 @@ void error(char *msg)
 int main(int argc, char *argv[])
 {
      int sockfd, newsockfd, portno, clilen;
-     char buffer[256];
+     char buffer[MAX];
      struct sockaddr_in serv_addr, cli_addr;
      int n;
      if (argc < 2) {
@@ -38,14 +40,31 @@ int main(int argc, char *argv[])
      listen(sockfd,5);
      clilen = sizeof(cli_addr);
      newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-     if (newsockfd < 0) 
+     if (newsockfd < 0){ 
           error("ERROR on accept");
-     bzero(buffer,256);
-     n = read(newsockfd,buffer,255);
-     if (n < 0) error("ERROR reading from socket");
-     printf("Here is the message: %s\n",buffer);
-     n = write(newsockfd,"I got your message",18);
-     if (n < 0) error("ERROR writing to socket");
+     }
+     else{
+    	printf("Accepting client...\n");
+     }
+     
+     while(1){
+	     bzero(buffer, MAX);
+	     n = read(newsockfd, buffer, sizeof(buffer));
+	     if (n < 0) error("ERROR reading from socket");
+	     if (strcmp("exit\n", buffer) == 0) {
+                 printf("Client has disconnected...\n");
+                 break;
+             }
+	     printf("\tClient: %s\n",buffer);
+	     
+	     bzero(buffer, MAX);
+	     printf("Server: ");
+	     fgets(buffer, sizeof(buffer), stdin);
+	     n = write(newsockfd,buffer, sizeof(buffer));
+	     if (n < 0) error("ERROR writing to socket");
+	     
+     }
+     close(sockfd);
      return 0; 
 }
 
