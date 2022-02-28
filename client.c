@@ -7,7 +7,8 @@
 #include <strings.h>
 #include <unistd.h>
 #include <string.h>
-#define MAX 1000
+#define MAX 1002
+//1000 char + new line + EOS
 
 void error(char *msg){
 	perror(msg);
@@ -66,7 +67,7 @@ int main(int argc, char *argv[]){
 		fgets(buffer, sizeof(buffer), stdin);
 		
 		// send message to the server
-		n = write(sockfd,buffer,strlen(buffer));
+		n = write(sockfd, buffer, sizeof(buffer));
 		if (n < 0){ 
 	 		error("ERROR writing to socket");
 	 	}
@@ -77,10 +78,10 @@ int main(int argc, char *argv[]){
 	 		break;
 		}
 		
-		bzero(buffer,256);
+		bzero(buffer, MAX);
 		
 		// read message from the server and copy into biffer
-		n = read(sockfd,buffer, sizeof(buffer));
+		n = read(sockfd, buffer, sizeof(buffer));
 		if (n < 0){ 
 	 		error("ERROR reading from socket");
 	 	}
